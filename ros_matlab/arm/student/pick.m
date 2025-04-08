@@ -35,8 +35,8 @@ function grip_result = pick(strategy,objectData,optns)
             zOffset = 0.145;
             doGripValue = 0.62;
         elseif strcmp(string(label), "can")
-            zOffset = 0.1;
-            doGripValue = 0.24;
+            zOffset = 0.8;
+            doGripValue = 0.15;
         elseif strcmp(string(label), "bottle")
             zOffset = 0.12;
             doGripValue = 0.36;
