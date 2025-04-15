@@ -1,4 +1,4 @@
-function [bboxes, scores, labels, numObjects, myImg, annotatedImage] = getLabeledImg(zone, optns)
+function [bboxes, scores, labels, numObjects, rgbImage, annotatedImage] = getLabeledImg(zone, optns)
 % ------------------------------------------------------------------------
 % Takes a picture by accessing a subscriber, loads the dector and labels
 % the image taken, and displays it.
@@ -26,7 +26,7 @@ function [bboxes, scores, labels, numObjects, myImg, annotatedImage] = getLabele
     disp("Taking picture...")
 
     rosImg  = receive(r.rgb_sub);
-    myImg   = rosReadImage(rosImg,"PreserveStructureOnRead",true);
+    rgbImage   = rosReadImage(rosImg,"PreserveStructureOnRead",true);
     
     %% Bounding Boxes
     disp("Computing bounding boxes, scores, and labels...")
@@ -36,11 +36,11 @@ function [bboxes, scores, labels, numObjects, myImg, annotatedImage] = getLabele
     trainedYoloNet = pretrained.detector;
 
     %% TODO: Detect objects using yolo. Output bboxes, scores, labels. Threshold of 0.7
-    [bboxes,scores,labels] =    
+    [bboxes,scores,labels] = detect(trainedYoloNet,rgbImage,Threshold=0.7);   
 
     %% TODO: Visualize the detected objects' bounding boxes by calling insertObjectAnnotation and save to annotatedImage
     disp("Drawing bounding boxes...")
-    annotatedImage = 
+    annotatedImage = insertObjectAnnotation(im2uint8(rgbImage),'Rectangle',bboxes,string(labels)+":"+string(scores),'Color','cyan');
 
     % Display
     if optns{'debug'}
@@ -51,6 +51,3 @@ function [bboxes, scores, labels, numObjects, myImg, annotatedImage] = getLabele
     numObjects = size(bboxes,1);
 
 end
-
-
-

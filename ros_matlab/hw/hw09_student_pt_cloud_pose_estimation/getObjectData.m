@@ -1,4 +1,4 @@
-function objectData = getObjectData(ptCloud_base, nonPlane_pic, myImg, bboxes, numOfObjects, base_to_cam_pose, cam_to_base_pose, labeled)    
+function objectData = getObjectData(ptCloud_base, nonPlane_pic, rgbImage, bboxes, numOfObjects, base_to_cam_pose, cam_to_base_pose, labeled)    
 %--------------------------------------------------------------------------
 % Transforms point clouds from the camera frame to the robot's base frame,
 % estimates object poses using PCA and downsampling, visualizes each
@@ -38,13 +38,13 @@ function objectData = getObjectData(ptCloud_base, nonPlane_pic, myImg, bboxes, n
     %% 01 Transform all point cloud points to base_to_cam 
 
     % Convert cam_to_base_pose to a matlab rigitform3d similar to homTrans in Peter Corke 
-    tform_to_cam = rigidtform3d(cam_to_base_pose);
+    to_cam_tform = rigidtform3d(cam_to_base_pose);
 
     % TODO: Transform the reference frame of point clouds ptCloud_base with tform_to_cam
-    ptCloud_tform_cam = 
+    ptCloud_tform_cam = pctransform(ptCloud_base, to_cam_tform);
 
     % TODO: Also do for non-plane specific points nonPlane_pic with tform_to_cam
-    nonPlane_tform_cam = 
+    nonPlane_tform_cam = pctransform(nonPlane_pic, to_cam_tform);
     
     %% 02 Estimate object pose wrt to base
     disp("Finding object pose with respect to base_link...")
@@ -53,12 +53,11 @@ function objectData = getObjectData(ptCloud_base, nonPlane_pic, myImg, bboxes, n
     gridDownsample = 0.007;
     
     % If using a single point cloud:
-    %[xyz,theta,ptCloud_vec,scene_pca_vec] = findObjectPoses(ptCloud_tform, myImg, bboxes, gridDownsample, nonPlaneMask);
+    %[xyz,theta,ptCloud_vec,scene_pca_vec] = findObjectPoses(ptCloud_tform_cam, rgbImage, bboxes, gridDownsample, nonPlaneMask);
 
     % If using merged point clouds:
     [xyz,theta,ptCloud_vec,scene_pca_vec] = betterObjectPoses(ptCloud_tform_cam, ...    % all points wrt to base
-                                                              nonPlane_tform_cam, ...   % non plane points wrt to base
-                                                              myImg, ...                % rgb image
+                                                              rgbImage, ...                % rgb image
                                                               bboxes, ...               % yolo bounding boxes
                                                               gridDownsample, ...       % downsample factor
                                                               base_to_cam_pose);        % base to cam pose
